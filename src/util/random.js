@@ -19,3 +19,7 @@ export function pickIndexFromArray(list) {
 export function generateDistance() {
   return Math.random() * 5000 + 1000;
 }
+
+export function generateRandomTime() {
+  return Math.random() * 500 + 600;
+}
