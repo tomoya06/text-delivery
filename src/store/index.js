@@ -30,6 +30,9 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    isEarningEnough({ state }, val) {
+      return new Promise((resolve) => resolve(val <= state.earning));
+    },
   },
   getters: {
     isSending: (state) => [

@@ -12,6 +12,14 @@
           <span>不充了</span>
         </button>
       </span>
+      <span>
+        <span>充電速度：{{ curCS }}</span>
+        <button @click="handleUpgradeCharging" v-if="canUpgradeCS">
+          <span>只需{{ upgradeCScost | moneyFilter }}，</span>
+          <span>升級愛車充電速度</span>
+          <span>至{{ nextCS }}</span>
+        </button>
+      </span>
     </div>
   </div>
 </template>
@@ -28,7 +36,7 @@ export default {
   computed: {
     ...mapState(['timeSpeed']),
     ...mapState('car', ['duration', 'maxDuration', 'status']),
-    ...mapGetters('car', ['grade', 'isCharging']),
+    ...mapGetters('car', ['grade', 'isCharging', 'curCS', 'nextCS', 'upgradeCScost', 'canUpgradeCS']),
     carStatus() {
       switch (this.status) {
         case carState.fine:
@@ -49,10 +57,12 @@ export default {
   methods: {
     handleCharging() {
       this.chargingInterval = setInterval(() => {
-        this.$store.dispatch('car/chargeYourCar')
+        this.$store
+          .dispatch('car/chargeYourCar')
           .then(() => {
             console.log('charge');
-          }).catch((err) => {
+          })
+          .catch((err) => {
             console.log('charge error', err);
           });
       }, this.timeSpeed);
@@ -60,6 +70,16 @@ export default {
     handleDischarging() {
       clearInterval(this.chargingInterval);
       this.$store.dispatch('car/stopCharging').catch(() => {});
+    },
+    handleUpgradeCharging() {
+      this.$store
+        .dispatch('car/upgradeChargingSpeed')
+        .then((newSpeed) => {
+          console.log(`upgrade charging speed to ${newSpeed}`);
+        })
+        .catch((error) => {
+          console.log(`upgrade error ${error}`);
+        });
     },
   },
 };

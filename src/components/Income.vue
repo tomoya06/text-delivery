@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>收入 {{ earning }}</span>
+    <span>收入 {{ earning | moneyFilter }}</span>
     <span>分成 {{ share | percentFilter }}</span>
   </div>
 </template>
