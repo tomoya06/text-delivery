@@ -5,7 +5,7 @@ import { playerState } from '../data/player';
 const maxQueueLengths = [1, 3, 5, 10, 20];
 // const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
 const shares = [0.1, 0.2, 0.3, 0.4, 0.5];
-const stepSizes = [1000, 0.1, 0.1, 0.1, 0.1];
+const stepSizes = [0.1, 0.1, 0.1, 0.1, 0.1];
 
 const randomIncomeRates = [0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1, 0.3, 0.5];
 
@@ -27,7 +27,8 @@ export default {
     addExpressToQueue(state, express) {
       state.queue.push(express);
     },
-    activatePackage(state, idx) {
+    activatePackage(state, uuid) {
+      const idx = _.findIndex(state.queue, { id: uuid });
       state.queue[idx].active = true;
       state.activeIdx = idx;
     },
@@ -37,19 +38,18 @@ export default {
         // 送到了
         console.log('package arrived');
         state.queue[state.activeIdx].distance = 0;
-        delete state.queue[state.activeIdx].active;
+        state.queue[state.activeIdx].active = false;
         state.queue[state.activeIdx].finished = true;
       }
     },
   },
   actions: {
-    startDeliver({ commit, state, rootState }, uuid) {
+    startDeliver({ commit, rootState }, uuid) {
       return new Promise((resolve, reject) => {
         if (rootState.status !== playerState.free) {
           return reject(new Error('not free'));
         }
-        const idx = _.findIndex(state.queue, { id: uuid });
-        commit('activatePackage', idx);
+        commit('activatePackage', uuid);
         commit('updateStatus', playerState.gettingPackage, { root: true });
         return resolve();
       });

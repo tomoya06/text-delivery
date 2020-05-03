@@ -27,8 +27,6 @@ const TimeUtil = require('../util/time');
 const RandomUtil = require('../util/random');
 const { playerState } = require('../data/player');
 
-const STEP_INTERVAL = 100;
-
 export default {
   data() {
     return {
@@ -58,6 +56,7 @@ export default {
     ...mapState({
       curPlayerState: (state) => state.status,
     }),
+    ...mapState(['timeSpeed']),
     ...mapState('player', {
       myQueue: (state) => state.queue,
       maxQueueLength: (state) => state.maxQueueLength,
@@ -69,7 +68,8 @@ export default {
       if (val === playerState.finishedPackage) {
         console.log('finished express');
         const finishedPackage = _.find(this.myQueue, { finished: true });
-        this.$store.dispatch('player/finalizePackage', finishedPackage.id)
+        this.$store.dispatch('car/stopTheCar')
+          .then(() => this.$store.dispatch('player/finalizePackage', finishedPackage.id))
           .then(({ stock, bonus }) => {
             this.summary = `本單進賬${stock.toFixed(1)}元`;
             this.summary += bonus > 0 ? `，獲得小費${bonus.toFixed(1)}元` : '';
@@ -87,7 +87,7 @@ export default {
     handleActivatePackage(pkg) {
       if (pkg.active) {
         this.$store.dispatch('player/deliverPackage');
-      } else {
+      } else if (!pkg.finished) {
         this.$store
           .dispatch('player/startDeliver', pkg.id)
           .then(() => TimeUtil.delay(RandomUtil.generateRandomTime()))
@@ -104,7 +104,7 @@ export default {
       }
       this.onTheRoadInterval = setInterval(() => {
         this.triggerOneStep();
-      }, STEP_INTERVAL);
+      }, this.timeSpeed);
     },
     triggerOneStep() {
       this.$store.dispatch('player/deliverPackage');

@@ -33,6 +33,8 @@ export default {
         good: curService.name,
         value: curPrice,
         distance: curDis,
+        active: false,
+        finished: false,
       };
       state.queue.push(newPackage);
     },

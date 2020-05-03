@@ -9,4 +9,4 @@ export const playerState = new Enum([
   'finishedPackage',
 ]);
 
-export const carState = new Enum(['fine', 'outOfGas', 'broken']);
+export const carState = new Enum(['fine', 'driving', 'outOfGas', 'broken', 'charging']);

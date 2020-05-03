@@ -16,6 +16,7 @@ export default new Vuex.Store({
     grade: 0, // 等级
     warning: 0, // 罚单数量
     status: playerState.free,
+    timeSpeed: 100,
   },
   mutations: {
     updateStatus(state, newState) {

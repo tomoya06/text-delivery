@@ -8,10 +8,10 @@
 </template>
 
 <script>
-import Hud from './components/HUD.vue';
+import Hud from './components/CarControl.vue';
 import Income from './components/Income.vue';
 import MarketCenter from './components/MarketCenter.vue';
-import Panel from './components/Panel.vue';
+import Panel from './components/ExpressControl.vue';
 
 export default {
   name: 'App',

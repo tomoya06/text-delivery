@@ -15,3 +15,7 @@ export function distanceFilter(value) {
 export function rawDistanceFilter(value) {
   return `${value.toFixed(1)} m`;
 }
+
+export function percentFilter(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
