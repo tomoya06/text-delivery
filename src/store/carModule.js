@@ -1,17 +1,15 @@
-import Enum from 'enum';
+import { carState } from '../data/player';
 
 const durations = [20000, 30000, 50000, 100000, 500000];
-const stepSizes = [1000, 2, 5, 10, 20];
-
-export const carState = new Enum(['fine', 'outOfGas', 'broken']);
+const stepSizes = [10, 15, 20, 35, 50];
 
 export default {
   namespaced: true,
   state: () => ({
     grade: 0,
     state: carState.fine,
-    duration: durations[0],
     stepSize: stepSizes[0],
+    duration: durations[0],
     maxDuration: durations[0],
   }),
   mutations: {

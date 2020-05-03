@@ -1,6 +1,12 @@
-export const status = {
-  free: 'free',
-  sending: 'sending',
-};
+import Enum from 'enum';
 
-export const placeholder = null;
+export const playerState = new Enum([
+  'free',
+  'gettingPackage',
+  'startSendingPackage',
+  'sendingPackageOnCar',
+  'sendingPackageOnFoot',
+  'finishedPackage',
+]);
+
+export const carState = new Enum(['fine', 'outOfGas', 'broken']);

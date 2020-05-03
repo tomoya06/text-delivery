@@ -1,27 +1,17 @@
-export const serviceProviders = [
-  {
-    name: '饭店',
-    services: [
-      {
-        name: '香菇滑鸡饭',
-        price: [15, 20],
-      },
-      {
-        name: '牛腩面',
-        price: [15, 20, 25],
-      },
-    ],
-  },
-];
+const allProvidersData = require('./allPackage.json');
 
-export const rcvNames = [
-  'person 1',
-  'person 2',
-];
+const filteredProvidersData = allProvidersData.map((provider) => ({
+  name: provider.name.replace(/[(（].*/, ''),
+  services: provider.services.filter((item) => item.price[0] !== 0),
+}));
 
-export const competitorNames = [
-  '快遞佬1',
-  '新北周傑倫',
-];
+export const serviceProviders = filteredProvidersData;
 
-export const placeholder = null;
+const allRcvNames = require('./allRcvNames.json');
+
+const filteredRcvNames = [...new Set(allRcvNames)]
+  .map((name) => name.replace(/\W/, ''));
+
+export const rcvNames = filteredRcvNames;
+
+export const competitorNames = filteredRcvNames;

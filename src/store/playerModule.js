@@ -1,38 +1,25 @@
 import _ from 'lodash';
-import Enum from 'enum';
 import { pickFromArray } from '../util/random';
+import { playerState } from '../data/player';
 
-const maxQueueLength = [1, 3, 5, 10, 20];
+const maxQueueLengths = [1, 3, 5, 10, 20];
+// const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
 const shares = [0.1, 0.2, 0.3, 0.4, 0.5];
 const stepSizes = [1000, 0.1, 0.1, 0.1, 0.1];
 
 const randomIncomeRates = [0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1, 0.3, 0.5];
 
-export const playerState = new Enum([
-  'free',
-  'gettingPackage',
-  'startSendingPackage',
-  'sendingPackageOnCar',
-  'sendingPackageOnFoot',
-  'finishedPackage',
-]);
 
 export default {
   namespaced: true,
   state: () => ({
-    earning: 10, // 收入
-    warning: 0, // 罚单数量
-    grade: 0, // 等级
     share: shares[0],
-    state: playerState.free,
     stepSize: stepSizes[0],
     queue: [],
+    maxQueueLength: maxQueueLengths[0],
     activeIdx: -1,
   }),
   mutations: {
-    earn(state, value) {
-      state.earning += value;
-    },
     removeExpress(state, uuid) {
       const idx = _.findIndex(state.queue, { id: uuid });
       state.queue.splice(idx, 1);
@@ -40,16 +27,9 @@ export default {
     addExpressToQueue(state, express) {
       state.queue.push(express);
     },
-    penalty(state, n) {
-      state.earning -= n;
-      state.warning += 1;
-    },
     activatePackage(state, idx) {
       state.queue[idx].active = true;
       state.activeIdx = idx;
-    },
-    updateState(state, newState) {
-      state.state = newState;
     },
     resolvePackageDistance(state, dis) {
       state.queue[state.activeIdx].distance -= dis;
@@ -63,14 +43,14 @@ export default {
     },
   },
   actions: {
-    startDeliver({ commit, state }, uuid) {
+    startDeliver({ commit, state, rootState }, uuid) {
       return new Promise((resolve, reject) => {
-        if (state.state !== playerState.free) {
+        if (rootState.status !== playerState.free) {
           return reject(new Error('not free'));
         }
         const idx = _.findIndex(state.queue, { id: uuid });
         commit('activatePackage', idx);
-        commit('updateState', playerState.gettingPackage);
+        commit('updateStatus', playerState.gettingPackage, { root: true });
         return resolve();
       });
     },
@@ -86,29 +66,29 @@ export default {
         return resolve();
       });
     },
-    startSendingPackage({ state, commit }) {
+    startSendingPackage({ commit, rootState }) {
       return new Promise((resolve, reject) => {
-        if (state.state !== playerState.gettingPackage) {
+        if (rootState.status !== playerState.gettingPackage) {
           return reject(new Error('no package yet'));
         }
-        commit('updateState', playerState.startSendingPackage);
+        commit('updateStatus', playerState.startSendingPackage, { root: true });
         return resolve();
       });
     },
     deliverPackage({
-      commit, getters, state, dispatch,
+      commit, state, dispatch, rootGetters, getters,
     }) {
-      if (!getters.isSending) {
+      if (!rootGetters.isSending) {
         return;
       }
-      const remainingDistance = state.queue[state.activeIdx].distance;
+      const { remainingDistance } = getters;
       dispatch('car/driveYourCar', remainingDistance, { root: true })
         .then((dis) => {
-          commit('updateState', playerState.sendingPackageOnCar);
+          commit('updateStatus', playerState.sendingPackageOnCar, { root: true });
           commit('resolvePackageDistance', dis);
         })
         .catch(() => {
-          commit('updateState', playerState.sendingPackageOnFoot);
+          commit('updateStatus', playerState.sendingPackageOnFoot, { root: true });
           return dispatch('runOnFoot', remainingDistance)
             .then((runDis) => {
               commit('resolvePackageDistance', runDis);
@@ -116,7 +96,7 @@ export default {
         })
         .finally(() => {
           if (state.queue[state.activeIdx].distance <= 0) {
-            commit('updateState', playerState.finishedPackage);
+            commit('updateStatus', playerState.finishedPackage, { root: true });
           }
         });
     },
@@ -133,7 +113,7 @@ export default {
           const thisIncome = thePackage.value * state.share;
           const randomIncome = pickFromArray(randomIncomeRates) * thePackage.value;
 
-          commit('earn', thisIncome + randomIncome);
+          commit('earn', thisIncome + randomIncome, { root: true });
 
           return resolve({
             stock: thisIncome,
@@ -147,18 +127,14 @@ export default {
       });
     },
     getFree({ commit }, uuid) {
-      commit('updateState', playerState.free);
+      commit('updateStatus', playerState.free, { root: true });
       commit('removeExpress', uuid);
     },
   },
   getters: {
     grade: (state) => state.grade + 1,
-    maxQueueContent: (state) => maxQueueLength[state.grade],
-    isQueueFull: (state) => state.queue.length === maxQueueLength[state.grade],
-    isSending: (state) => [
-      playerState.startSendingPackage,
-      playerState.sendingPackageOnCar,
-      playerState.sendingPackageOnFoot,
-    ].includes(state.state),
+    maxQueueContent: (state) => maxQueueLengths[state.grade],
+    isQueueFull: (state) => state.queue.length === state.maxQueueLength,
+    remainingDistance: (state) => state.queue[state.activeIdx].distance,
   },
 };

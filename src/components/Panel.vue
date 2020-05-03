@@ -2,7 +2,7 @@
   <div>
     <div id="my-queue">
       <div id="info-container">
-        <span>我的待送包裹：{{ myQueue.length }}/{{ maxQueueContent }}</span>
+        <span>我的待送包裹：{{ myQueue.length }}/{{ maxQueueLength }}</span>
         <span>當前狀態：{{ myState }}</span>
         <span v-if="showSummary">{{ summary }}</span>
       </div>
@@ -12,7 +12,7 @@
             <span v-if="pkg.active">正在派送 --- </span>
             <span v-if="pkg.finished">已送達 --- </span>
             <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
-            <span> -- {{ pkg.distance | distanceFilter }}m</span>
+            <span> -- {{ pkg.distance | rawDistanceFilter }}</span>
           </button>
         </li>
       </ul>
@@ -20,12 +20,14 @@
   </div>
 </template>
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 import _ from 'lodash';
 
 const TimeUtil = require('../util/time');
 const RandomUtil = require('../util/random');
-const { playerState } = require('../store/playerModule');
+const { playerState } = require('../data/player');
+
+const STEP_INTERVAL = 100;
 
 export default {
   data() {
@@ -53,11 +55,13 @@ export default {
           return '我也不知道你在幹嘛';
       }
     },
+    ...mapState({
+      curPlayerState: (state) => state.status,
+    }),
     ...mapState('player', {
       myQueue: (state) => state.queue,
-      curPlayerState: (state) => state.state,
+      maxQueueLength: (state) => state.maxQueueLength,
     }),
-    ...mapGetters('player', ['maxQueueContent']),
   },
   watch: {
     curPlayerState(val, oldVal) {
@@ -67,8 +71,8 @@ export default {
         const finishedPackage = _.find(this.myQueue, { finished: true });
         this.$store.dispatch('player/finalizePackage', finishedPackage.id)
           .then(({ stock, bonus }) => {
-            this.summary = `本單進賬${stock}元`;
-            this.summary += bonus > 0 ? `，獲得小費${bonus}元` : '';
+            this.summary = `本單進賬${stock.toFixed(1)}元`;
+            this.summary += bonus > 0 ? `，獲得小費${bonus.toFixed(1)}元` : '';
             this.showSummary = true;
             return TimeUtil.delay(1000);
           }).then(() => {
@@ -95,12 +99,12 @@ export default {
       }
     },
     startSending() {
-      if (!this.$store.getters['player/isSending']) {
+      if (!this.$store.getters.isSending) {
         clearInterval(this.onTheRoadInterval);
       }
       this.onTheRoadInterval = setInterval(() => {
         this.triggerOneStep();
-      }, 100);
+      }, STEP_INTERVAL);
     },
     triggerOneStep() {
       this.$store.dispatch('player/deliverPackage');

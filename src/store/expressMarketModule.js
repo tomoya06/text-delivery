@@ -15,6 +15,9 @@ export default {
     maxQueueLength: maxQueueLengths[0],
   }),
   mutations: {
+    removeAll(state) {
+      state.queue.splice(0);
+    },
     generatePackage(state) {
       const uid = uuidv4();
       const curRcvName = pickFromArray(packageData.rcvNames);
@@ -40,6 +43,9 @@ export default {
   },
   actions: {
     updateQueues({ commit, getters }) {
+      if (getters.isQueueFull) {
+        commit('removeAll');
+      }
       while (!getters.isQueueFull) {
         commit('generatePackage');
       }

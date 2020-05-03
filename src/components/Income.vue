@@ -9,7 +9,8 @@ import { mapState } from 'vuex';
 
 export default {
   computed: {
-    ...mapState('player', ['share', 'earning']),
+    ...mapState('player', ['share']),
+    ...mapState(['earning']),
   },
 };
 </script>

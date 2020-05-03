@@ -2,12 +2,14 @@ import Vue from 'vue';
 import App from './App.vue';
 import store from './store';
 
-import { fixedNumberFilter, distanceFilter } from './common/filters';
+import * as filters from './common/filters';
 
 Vue.config.productionTip = false;
 
-Vue.filter('fixedNumberFilter', fixedNumberFilter);
-Vue.filter('distanceFilter', distanceFilter);
+// eslint-disable-next-line no-restricted-syntax
+for (const filterKey of Object.keys(filters)) {
+  if (filterKey.endsWith('Filter')) { Vue.filter(filterKey, filters[filterKey]); }
+}
 
 new Vue({
   store,

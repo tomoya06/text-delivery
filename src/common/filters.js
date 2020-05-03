@@ -12,4 +12,6 @@ export function distanceFilter(value) {
   return `${value.toFixed(1)} m`;
 }
 
-export function placeHolder() {}
+export function rawDistanceFilter(value) {
+  return `${value.toFixed(1)} m`;
+}
