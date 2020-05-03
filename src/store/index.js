@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import { playerState } from '../data/player';
+import errorData from '../data/error';
 
 import playerModule from './playerModule';
 import expressMarketModule from './expressMarketModule';
@@ -32,6 +33,15 @@ export default new Vuex.Store({
   actions: {
     isEarningEnough({ state }, val) {
       return new Promise((resolve) => resolve(val <= state.earning));
+    },
+    spendMoney({ state, commit }, val) {
+      return new Promise((resolve, reject) => {
+        if (val > state.earning) {
+          return reject(errorData.notEnoughMoney);
+        }
+        commit('spend', val);
+        return resolve();
+      });
     },
   },
   getters: {

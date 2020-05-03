@@ -12,12 +12,14 @@
           <span>不充了</span>
         </button>
       </span>
+    </div>
+    <div>
       <span>
         <span>充電速度：{{ curCS }}</span>
         <button @click="handleUpgradeCharging" v-if="canUpgradeCS">
-          <span>只需{{ upgradeCScost | moneyFilter }}，</span>
+          <span>只需 {{ upgradeCScost | moneyFilter }} </span>
           <span>升級愛車充電速度</span>
-          <span>至{{ nextCS }}</span>
+          <span>至 {{ nextCS }}</span>
         </button>
       </span>
     </div>

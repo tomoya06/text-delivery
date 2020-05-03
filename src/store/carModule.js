@@ -39,7 +39,7 @@ export default {
       state.status = carState.fine;
     },
     upgradeChargingSpeed(state) {
-      state.csGrade = Math.min(state.csGrade + 1, chargingSpeeds.length);
+      state.csGrade = Math.min(state.csGrade + 1, chargingSpeeds.length - 1);
     },
   },
   actions: {
@@ -76,29 +76,32 @@ export default {
     },
     upgradeChargingSpeed({ commit, dispatch, state }) {
       // eslint-disable-next-line no-async-promise-executor
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const curIdx = state.csGrade;
         const upgradeCost = upgradeChargingSpeedPrices[curIdx + 1];
         const newSpeed = chargingSpeeds[curIdx + 1];
         if (!upgradeCost || !newSpeed) {
           return reject(new Error(errorData.car_cantUpgrade));
         }
-        const isEarningEnough = await dispatch('isEarningEnough', null, { root: true });
-        if (!isEarningEnough) {
-          return reject(new Error(errorData.notEnoughMoney));
-        }
-        commit('upgradeChargingSpeed');
-        return resolve(newSpeed);
+        return dispatch('spendMoney', upgradeCost, { root: true })
+          .then(() => {
+            commit('upgradeChargingSpeed');
+            return resolve(newSpeed);
+          })
+          .catch((error) => reject(error));
       });
     },
   },
   getters: {
     grade: (state) => state.grade + 1,
-    canCharge: (state) => [carState.fine, carState.charging].includes(state.status),
+    canCharge: (state) => [
+      carState.fine,
+      carState.charging,
+      carState.outOfGas].includes(state.status),
     isCharging: (state) => [carState.charging].includes(state.status),
     isFine: (state) => [carState.fine, carState.driving].includes(state.status),
 
-    canUpgradeCS: (state) => state.csGrade < chargingSpeeds.length,
+    canUpgradeCS: (state) => state.csGrade < chargingSpeeds.length - 1,
     curCS: (state) => chargingSpeeds[state.csGrade],
     nextCS: (state) => chargingSpeeds[state.csGrade + 1],
     upgradeCScost: (state) => upgradeChargingSpeedPrices[state.csGrade + 1],
