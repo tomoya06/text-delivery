@@ -2,8 +2,9 @@
   <div>
     <div id="my-queue">
       <div id="info-container">
-        <span>我的待送包裹 {{ myQueue.length }}/{{ maxQueueContent }}</span>
-        <span>{{ myState }}</span>
+        <span>我的待送包裹：{{ myQueue.length }}/{{ maxQueueContent }}</span>
+        <span>當前狀態：{{ myState }}</span>
+        <span v-if="showSummary">{{ summary }}</span>
       </div>
       <ul>
         <li v-for="pkg in myQueue" :key="pkg.id">
@@ -11,7 +12,7 @@
             <span v-if="pkg.active">正在派送 --- </span>
             <span v-if="pkg.finished">已送達 --- </span>
             <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
-            <span> -- {{ pkg.distance }}m</span>
+            <span> -- {{ pkg.distance | distanceFilter }}m</span>
           </button>
         </li>
       </ul>
@@ -30,6 +31,8 @@ export default {
   data() {
     return {
       onTheRoadInterval: null,
+      showSummary: false,
+      summary: '',
     };
   },
   computed: {
@@ -39,9 +42,10 @@ export default {
           return '正在閑逛';
         case playerState.gettingPackage:
           return '正在前往賣家';
-        case playerState.sendingPackage:
+        case playerState.sendingPackageOnCar:
+        case playerState.startSendingPackage:
           return '正在派送';
-        case playerState.runOutEngine:
+        case playerState.sendingPackageOnFoot:
           return '正在狂奔派送';
         case playerState.finishedPackage:
           return '正在清算';
@@ -61,7 +65,17 @@ export default {
       if (val === playerState.finishedPackage) {
         console.log('finished express');
         const finishedPackage = _.find(this.myQueue, { finished: true });
-        this.$store.dispatch('player/finalizePackage', finishedPackage.id);
+        this.$store.dispatch('player/finalizePackage', finishedPackage.id)
+          .then(({ stock, bonus }) => {
+            this.summary = `本單進賬${stock}元`;
+            this.summary += bonus > 0 ? `，獲得小費${bonus}元` : '';
+            this.showSummary = true;
+            return TimeUtil.delay(1000);
+          }).then(() => {
+            this.$store.dispatch('player/getFree', finishedPackage.id);
+            this.showSummary = false;
+            this.summary = '';
+          });
       }
     },
   },
@@ -71,7 +85,7 @@ export default {
         this.$store.dispatch('player/deliverPackage');
       } else {
         this.$store
-          .dispatch('player/startExpress', pkg.id)
+          .dispatch('player/startDeliver', pkg.id)
           .then(() => TimeUtil.delay(RandomUtil.generateRandomTime()))
           .then(() => this.$store.dispatch('player/startSendingPackage'))
           .then(() => this.startSending())

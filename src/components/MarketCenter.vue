@@ -2,13 +2,17 @@
   <div>
     <div id="market-queue">
       <div>
-        <span>搶單市場 {{ marketQueue.length }}</span>
+        <span>搶單市場 {{ queue.length }} / {{ maxQueueLength }}</span>
+        <span>搶單等級{{ grade }}</span>
+        <button @click="updateQueues">
+          <span>刷新</span>
+        </button>
       </div>
       <ul>
-        <li v-for="pkg in marketQueue" :key="pkg.id">
+        <li v-for="pkg in queue" :key="pkg.id">
           <button @click="() => handleChoosePackage(pkg)">
             <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
-            <span> -- {{ pkg.distance }}m</span>
+            <span> -- {{ pkg.distance | distanceFilter }}</span>
           </button>
         </li>
       </ul>
@@ -16,6 +20,7 @@
   </div>
 </template>
 <script>
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -25,13 +30,11 @@ export default {
     };
   },
   created() {
-    for (let i = 0; i < 10; i += 1) {
-      this.generatePackage();
-    }
+    this.updateQueues();
   },
   methods: {
-    generatePackage() {
-      this.$store.dispatch('market/generatePackage');
+    updateQueues() {
+      this.$store.dispatch('market/updateQueues');
     },
     handleChoosePackage(pkg) {
       this.$store
@@ -42,9 +45,8 @@ export default {
     },
   },
   computed: {
-    marketQueue() {
-      return this.$store.state.market.queue;
-    },
+    ...mapState('market', ['queue', 'maxQueueLength']),
+    ...mapGetters('market', ['grade']),
   },
 };
 </script>

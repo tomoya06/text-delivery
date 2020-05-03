@@ -1,22 +1,25 @@
 <template>
   <div id="app">
     <hud></hud>
+    <income></income>
     <panel></panel>
-    <queue></queue>
+    <MarketCenter></MarketCenter>
   </div>
 </template>
 
 <script>
 import Hud from './components/HUD.vue';
-import Queue from './components/Queue.vue';
+import Income from './components/Income.vue';
+import MarketCenter from './components/MarketCenter.vue';
 import Panel from './components/Panel.vue';
 
 export default {
   name: 'App',
   components: {
     Hud,
-    Queue,
+    MarketCenter,
     Panel,
+    Income,
   },
 };
 </script>

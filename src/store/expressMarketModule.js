@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { pickFromArray, generateDistance } from '../util/random';
 
-const maxQueueLength = [10, 15, 20, 30, 50];
+const maxQueueLengths = [10, 15, 20, 30, 50];
 
 const packageData = require('../data/package');
 
@@ -12,6 +12,7 @@ export default {
   state: () => ({
     queue: [],
     grade: 0,
+    maxQueueLength: maxQueueLengths[0],
   }),
   mutations: {
     generatePackage(state) {
@@ -38,14 +39,14 @@ export default {
     },
   },
   actions: {
-    generatePackage({ commit, getters }) {
-      if (getters.isQueueFull) {
-        return;
+    updateQueues({ commit, getters }) {
+      while (!getters.isQueueFull) {
+        commit('generatePackage');
       }
-      commit('generatePackage');
     },
   },
   getters: {
-    isQueueFull: (state) => state.queue.length === maxQueueLength[state.grade],
+    isQueueFull: (state) => state.queue.length === state.maxQueueLength,
+    grade: (state) => state.grade + 1,
   },
 };

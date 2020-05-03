@@ -2,7 +2,6 @@
   <div id="hud-container">
     <span>等级 {{ grade }}</span>
     <span>电池续航 {{ duration | fixedNumberFilter }}/{{ maxDuration | fixedNumberFilter }}</span>
-    <span>收入 {{ earning }}</span>
   </div>
 </template>
 <script>
@@ -13,7 +12,7 @@ export default {
     console.log(this.$store);
   },
   computed: {
-    ...mapState('player', ['earning', 'duration', 'maxDuration']),
+    ...mapState('car', ['duration', 'maxDuration']),
     ...mapGetters('player', ['grade']),
   },
 };
