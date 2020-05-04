@@ -3,12 +3,14 @@ import { pickFromArray } from '../util/random';
 import { playerState } from '../data/player';
 import { allError } from '../data/error';
 
-const maxQueueLengths = [3, 3, 5, 10, 20];
-// const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
 const shares = [0.1, 0.2, 0.3, 0.4, 0.5];
-const stepSizes = [0.1, 0.1, 0.1, 0.1, 0.1];
 
-const randomIncomeRates = [0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1, 0.3, 0.5];
+const stepSizes = [0.1];
+
+const maxQueueLengths = [3, 3, 5, 10, 20];
+const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
+
+const randomIncomeRates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1, 0.3, 0.5];
 
 
 export default {
@@ -17,7 +19,7 @@ export default {
     share: shares[0],
     stepSize: stepSizes[0],
     queue: [],
-    maxQueueLength: maxQueueLengths[0],
+    qlGrade: 0,
     activeIdx: -1,
   }),
   mutations: {
@@ -134,8 +136,12 @@ export default {
   },
   getters: {
     grade: (state) => state.grade + 1,
-    maxQueueContent: (state) => maxQueueLengths[state.grade],
-    isQueueFull: (state) => state.queue.length === state.maxQueueLength,
+    isQueueFull: (state) => state.queue.length === maxQueueLengths[state.qlGrade],
     remainingDistance: (state) => state.queue[state.activeIdx].distance,
+
+    canUpgradeQl: (state) => state.qlGrade < maxQueueLengths.length - 1,
+    curQl: (state) => maxQueueLengths[state.qlGrade],
+    nextQl: (state) => maxQueueLengths[state.qlGrade + 1],
+    upgradeQlcost: (state) => upgradeMaxQueueLengthPrices[state.qlGrade + 1],
   },
 };

@@ -2,8 +2,7 @@
   <div>
     <div id="hud-container">
       <span>電摩等级 {{ grade }}</span>
-      <span>电池续航：{{ duration | distanceFilter }}/{{ maxDuration | distanceFilter }}</span>
-      <span>电摩状况：{{ carStatus }}</span>
+      <span>电摩状况：{{ status }}</span>
       <span>
         <button @click="handleCharging" v-if="!isCharging">
           <span>充電</span>
@@ -26,11 +25,20 @@
         </button>
       </span>
     </div>
+    <div>
+      <span>电池续航：{{ curDt | distanceFilter }}/{{ curDt | distanceFilter }}</span>
+      <button @click="handleUpgradeDuration" v-if="canUpgradeDt">
+        <span>不要{{upgradeDtcost * 1.5 | roundMoneyFilter}}，</span>
+        <span>不要{{upgradeDtcost * 1.2 | roundMoneyFilter}}，</span>
+        <span>只要{{upgradeDtcost | roundMoneyFilter}}，</span>
+        <span>升級電池續航</span>
+        <span>至{{nextDt | distanceFilter}}</span>
+      </button>
+    </div>
   </div>
 </template>
 <script>
 import { mapState, mapGetters } from 'vuex';
-import { carState } from '../data/player';
 
 export default {
   data() {
@@ -40,24 +48,11 @@ export default {
   },
   computed: {
     ...mapState(['timeSpeed']),
-    ...mapState('car', ['duration', 'maxDuration', 'status']),
-    ...mapGetters('car', ['grade', 'isCharging', 'curCS', 'nextCS', 'upgradeCScost', 'canUpgradeCS']),
-    carStatus() {
-      switch (this.status) {
-        case carState.fine:
-          return '良好';
-        case carState.outOfGas:
-          return '沒電了';
-        case carState.broken:
-          return '壞掉了';
-        case carState.charging:
-          return '充電中';
-        case carState.driving:
-          return '在開著';
-        default:
-          return '不知道咋回事兒';
-      }
-    },
+    ...mapState('car', ['status']),
+    ...mapGetters('car', [
+      'grade', 'isCharging', 'curCS', 'nextCS', 'upgradeCScost', 'canUpgradeCS',
+      'curDt', 'canUpgradeDt', 'nextDt', 'upgradeDtcost',
+    ]),
   },
   methods: {
     triggerCharging() {
@@ -88,10 +83,19 @@ export default {
       this.$store
         .dispatch('car/upgradeChargingSpeed')
         .then((newSpeed) => {
-          console.log(`upgrade charging speed to ${newSpeed}`);
+          this.sendMsg(`電摩速度升級至${newSpeed}`);
         })
         .catch((error) => {
-          console.log(`upgrade error ${error}`);
+          this.sendMsg(error.message);
+        });
+    },
+    handleUpgradeDuration() {
+      this.$store.dispatch('car/upgradeDuration')
+        .then((newDuration) => {
+          this.sendMsg(`電摩續航升級至${this.$options.filters.distanceFilter(newDuration)}`);
+        })
+        .catch((error) => {
+          this.sendMsg(error.message);
         });
     },
   },

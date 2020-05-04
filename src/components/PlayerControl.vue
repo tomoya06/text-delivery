@@ -2,13 +2,13 @@
   <div>
     <div id="my-queue">
       <div id="info-container">
-        <span>我的待送包裹：{{ myQueue.length }}/{{ maxQueueLength }}</span>
-        <span>當前狀態：{{ myState }}</span>
+        <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
+        <span>當前狀態：{{ status }}</span>
         <span v-if="showSummary">{{ summary }}</span>
       </div>
       <ul>
-        <li v-for="pkg in myQueue" :key="pkg.id">
-          <button @click="() => handleActivatePackage(pkg)">
+        <li v-for="pkg in queue" :key="pkg.id">
+          <button @click="() => handleActivatePackage(pkg)" v-if="!pkg.finished">
             <span v-if="!pkg.active">開始派送</span>
             <span v-else>加速！</span>
           </button>
@@ -28,12 +28,14 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import _ from 'lodash';
 
 const TimeUtil = require('../util/time');
 const RandomUtil = require('../util/random');
 const { playerState } = require('../data/player');
+
+const FINALIZE_DELAY = 2000;
 
 export default {
   data() {
@@ -44,45 +46,23 @@ export default {
     };
   },
   computed: {
-    myState() {
-      switch (this.curPlayerState) {
-        case playerState.free:
-          return '正在閑逛';
-        case playerState.gettingPackage:
-          return '正在前往賣家';
-        case playerState.sendingPackageOnCar:
-        case playerState.startSendingPackage:
-          return '正在派送';
-        case playerState.sendingPackageOnFoot:
-          return '正在狂奔派送';
-        case playerState.finishedPackage:
-          return '正在清算';
-        default:
-          return '我也不知道你在幹嘛';
-      }
-    },
-    ...mapState({
-      curPlayerState: (state) => state.status,
-    }),
-    ...mapState(['timeSpeed']),
-    ...mapState('player', {
-      myQueue: (state) => state.queue,
-      maxQueueLength: (state) => state.maxQueueLength,
-    }),
+    ...mapState(['timeSpeed', 'status']),
+    ...mapState('player', ['queue']),
+    ...mapGetters('player', ['curQl']),
   },
   watch: {
-    curPlayerState(val, oldVal) {
+    status(val, oldVal) {
       if (val === oldVal) return;
       if (val === playerState.finishedPackage) {
         console.log('finished express');
-        const finishedPackage = _.find(this.myQueue, { finished: true });
+        const finishedPackage = _.find(this.queue, { finished: true });
         this.$store.dispatch('car/stopTheCar')
           .then(() => this.$store.dispatch('player/finalizePackage', finishedPackage.id))
           .then(({ stock, bonus }) => {
             this.summary = `本單進賬${stock.toFixed(1)}元`;
             this.summary += bonus > 0 ? `，獲得小費${bonus.toFixed(1)}元` : '';
             this.showSummary = true;
-            return TimeUtil.delay(1000);
+            return TimeUtil.delay(FINALIZE_DELAY);
           }).then(() => {
             this.$store.dispatch('player/getFree', finishedPackage.id);
             this.showSummary = false;
@@ -101,8 +81,8 @@ export default {
           .then(() => TimeUtil.delay(RandomUtil.generateRandomTime()))
           .then(() => this.$store.dispatch('player/startSendingPackage'))
           .then(() => this.startSending())
-          .catch(() => {
-            this.sendMsg('不行。老闆説你不可以這樣派送');
+          .catch((error) => {
+            this.sendMsg(error.message);
           });
       }
     },

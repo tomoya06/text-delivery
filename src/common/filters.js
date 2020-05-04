@@ -12,6 +12,10 @@ export function distanceFilter(value) {
   return `${value.toFixed(1)} m`;
 }
 
+export function roundMoneyFilter(value) {
+  return `${value.toFixed(0)}園`;
+}
+
 export function moneyFilter(value) {
   return `${value.toFixed(1)}園`;
 }

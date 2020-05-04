@@ -9,10 +9,12 @@
 </template>
 
 <script>
+import './assets/common.less';
+
 import Hud from './components/CarControl.vue';
 import Income from './components/Income.vue';
 import MarketCenter from './components/MarketCenter.vue';
-import Panel from './components/ExpressControl.vue';
+import Panel from './components/PlayerControl.vue';
 import MessageBox from './components/MessageBox.vue';
 
 export default {

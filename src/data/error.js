@@ -1,13 +1,11 @@
-import Enum from 'enum';
+export const allError = {
+  notEnoughMoney: '你已經沒錢了',
 
-export const allError = new Enum([
-  'notEnoughMoney',
+  car_cantUpgrade: '你已經升到頂了',
 
-  'car_cantUpgrade',
-
-  'player_notFree',
-  'player_noActive',
-  'player_queueFull',
-]);
+  player_notFree: '你已經在配送了',
+  player_noActive: '你還沒有選中包裹',
+  player_queueFull: '你的待送配額已經滿了，氪金審計吧',
+};
 
 export const placeHolder = [];
