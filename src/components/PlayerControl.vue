@@ -1,30 +1,39 @@
 <template>
-  <div>
-    <div id="my-queue">
-      <div id="info-container">
-        <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
-        <span>當前狀態：{{ status }}</span>
-        <span v-if="showSummary">{{ summary }}</span>
-      </div>
-      <ul>
-        <li v-for="pkg in queue" :key="pkg.id">
+  <div class="block-container">
+    <div>
+      <b>配送概況</b>
+      <hr />
+    </div>
+    <div class="info-container">
+      <span>總共配送：{{ totalFinished }}</span>
+    </div>
+    <div class="info-container">
+      <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
+      <span v-if="showSummary">{{ summary }}</span>
+    </div>
+    <div class="info-container">
+      <span>當前狀態：{{ status }}</span>
+    </div>
+    <ul class="densed">
+      <li v-for="pkg in queue" :key="pkg.id" class="expanded queue-item">
+        <span>
           <button @click="() => handleActivatePackage(pkg)" v-if="!pkg.finished">
             <span v-if="!pkg.active">開始派送</span>
             <span v-else>加速！</span>
           </button>
-          <span>
+        </span>
+        <span class="queue-item-content">
+          <span class="status">
             <span v-if="pkg.active">正在派送</span>
             <span v-else-if="pkg.finished">已送達</span>
             <span v-else>待派送</span>
           </span>
-          <span> ---- </span>
-          <span>
-            <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
-            <span> -- {{ pkg.distance | rawDistanceFilter }}</span>
-          </span>
-        </li>
-      </ul>
-    </div>
+          <span>距離{{ pkg.distance | rawDistanceFilter }}</span>
+          <span>{{ pkg.from }} ➡ {{ pkg.to }}: {{ pkg.good }}</span>
+          <span>{{ pkg.value | moneyFilter }}</span>
+        </span>
+      </li>
+    </ul>
   </div>
 </template>
 <script>
@@ -47,7 +56,7 @@ export default {
   },
   computed: {
     ...mapState(['timeSpeed', 'status']),
-    ...mapState('player', ['queue']),
+    ...mapState('player', ['queue', 'totalFinished']),
     ...mapGetters('player', ['curQl']),
   },
   watch: {
@@ -56,14 +65,16 @@ export default {
       if (val === playerState.finishedPackage) {
         console.log('finished express');
         const finishedPackage = _.find(this.queue, { finished: true });
-        this.$store.dispatch('car/stopTheCar')
+        this.$store
+          .dispatch('car/stopTheCar')
           .then(() => this.$store.dispatch('player/finalizePackage', finishedPackage.id))
           .then(({ stock, bonus }) => {
             this.summary = `本單進賬${stock.toFixed(1)}元`;
             this.summary += bonus > 0 ? `，獲得小費${bonus.toFixed(1)}元` : '';
             this.showSummary = true;
             return TimeUtil.delay(FINALIZE_DELAY);
-          }).then(() => {
+          })
+          .then(() => {
             this.$store.dispatch('player/getFree', finishedPackage.id);
             this.showSummary = false;
             this.summary = '';
@@ -101,10 +112,11 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-#my-queue {
-  #info-container {
+.queue-item {
+  .queue-item-content {
     span {
-      padding: 0 1rem 0 0;
+      display: inline-block;
+      margin: 0 0 0 0.4rem;
     }
   }
 }

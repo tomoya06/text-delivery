@@ -18,6 +18,9 @@ export default {
   state: () => ({
     share: shares[0],
     stepSize: stepSizes[0],
+
+    totalFinished: 0,
+
     queue: [],
     qlGrade: 0,
     activeIdx: -1,
@@ -44,6 +47,9 @@ export default {
         state.queue[state.activeIdx].active = false;
         state.queue[state.activeIdx].finished = true;
       }
+    },
+    addFinished(state) {
+      state.totalFinished += 1;
     },
   },
   actions: {
@@ -117,6 +123,7 @@ export default {
           const randomIncome = pickFromArray(randomIncomeRates) * thePackage.value;
 
           commit('earn', thisIncome + randomIncome, { root: true });
+          commit('addFinished');
 
           return resolve({
             stock: thisIncome,

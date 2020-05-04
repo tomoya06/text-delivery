@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-const MAX_MSG_LENGTH = 5;
-const MSG_TIME = 3000;
+const MAX_MSG_LENGTH = 2;
 
 const emptyMsg = () => ({
   id: uuidv4(),
@@ -14,6 +13,7 @@ export default {
   namespaced: true,
   state: () => ({
     msgs: defaultMsgs,
+    flag: false,
   }),
   mutations: {
     sendMsg(state, msg) {
@@ -24,15 +24,17 @@ export default {
       });
       state.msgs.splice(MAX_MSG_LENGTH);
     },
-    emptyMsg() {
+    resetFlag(state) {
+      state.flag = !state.flag;
     },
   },
   actions: {
     sendMsg({ commit }, msg) {
+      commit('resetFlag');
       commit('sendMsg', msg);
-      setTimeout(() => {
-        commit('emptyMsg');
-      }, MSG_TIME);
+    },
+    sendNotAMsg({ commit }, msg) {
+      commit('sendMsg', msg);
     },
   },
 };

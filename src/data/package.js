@@ -10,7 +10,8 @@ export const serviceProviders = filteredProvidersData;
 const allRcvNames = require('./allRcvNames.json');
 
 const filteredRcvNames = [...new Set(allRcvNames)]
-  .map((name) => name.replace(/\W/, ''));
+  .map((name) => name.replace(/\W/, ''))
+  .filter((name) => name);
 
 export const rcvNames = filteredRcvNames;
 

@@ -1,44 +1,53 @@
 <template>
-  <div>
-    <div id="hud-container">
-      <span>電摩等级 {{ grade }}</span>
-      <span>电摩状况：{{ status }}</span>
-      <span>
-        <button @click="handleCharging" v-if="!isCharging">
-          <span>充電</span>
-        </button>
-        <button @click="handleTriggerCharging" v-if="isCharging">
-          <span>充快點</span>
-        </button>
-        <button @click="handleDischarging" v-if="isCharging">
-          <span>不充了</span>
-        </button>
-      </span>
-    </div>
+  <div class="block-container">
     <div>
-      <span>
-        <span>充電速度：{{ curCS }}</span>
-        <button @click="handleUpgradeCharging" v-if="canUpgradeCS">
-          <span>只需 {{ upgradeCScost | moneyFilter }} </span>
-          <span>升級愛車充電速度</span>
-          <span>至 {{ nextCS }}</span>
-        </button>
-      </span>
+      <b>電摩概況</b>
+      <hr />
     </div>
-    <div>
-      <span>电池续航：{{ curDt | distanceFilter }}/{{ curDt | distanceFilter }}</span>
-      <button @click="handleUpgradeDuration" v-if="canUpgradeDt">
-        <span>不要{{upgradeDtcost * 1.5 | roundMoneyFilter}}，</span>
-        <span>不要{{upgradeDtcost * 1.2 | roundMoneyFilter}}，</span>
-        <span>只要{{upgradeDtcost | roundMoneyFilter}}，</span>
-        <span>升級電池續航</span>
-        <span>至{{nextDt | distanceFilter}}</span>
-      </button>
-    </div>
+    <table class="info-container">
+      <tr>
+        <td width="200"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <span>电摩状况：{{ status }}</span>
+        </td>
+        <td>
+          <span>縂里程數：{{ mileage | distanceFilter }}</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span>最高車速：{{ curSS }}</span>
+        </td>
+        <td>
+          <span>充電速度：{{ curCS }}</span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span>电池续航：{{ duration | distanceFilter }}/{{ curDT | distanceFilter }}</span>
+          <span style="margin: 0 0 0 1rem">
+            <button @click="handleCharging" v-if="!isCharging">
+              <span>充電</span>
+            </button>
+            <button @click="handleTriggerCharging" v-if="isCharging">
+              <span>充快點</span>
+            </button>
+            <button @click="handleDischarging" v-if="isCharging">
+              <span>不充了</span>
+            </button>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <upgrade-center />
   </div>
 </template>
 <script>
 import { mapState, mapGetters } from 'vuex';
+import UpgradeCenter from './UpgradeCenter.vue';
 
 export default {
   data() {
@@ -48,63 +57,44 @@ export default {
   },
   computed: {
     ...mapState(['timeSpeed']),
-    ...mapState('car', ['status']),
-    ...mapGetters('car', [
-      'grade', 'isCharging', 'curCS', 'nextCS', 'upgradeCScost', 'canUpgradeCS',
-      'curDt', 'canUpgradeDt', 'nextDt', 'upgradeDtcost',
-    ]),
+    ...mapState('car', ['status', 'mileage', 'duration']),
+    ...mapGetters('car', ['grade', 'isCharging', 'curDT', 'curCS', 'curSS']),
   },
   methods: {
     triggerCharging() {
-      this.$store
-        .dispatch('car/chargeYourCar')
-        .then(() => {
-          console.log('charge');
-        })
-        .catch((err) => {
-          console.log('charge error', err);
-        });
+      return this.$store.dispatch('car/chargeYourCar');
     },
     handleTriggerCharging() {
-      this.triggerCharging();
-      this.sendMsg('手動充電！！');
+      this.triggerCharging()
+        .then(() => {
+          this.sendMsg('用愛發電！！');
+        })
+        .catch((error) => {
+          this.sendMsg(`危險！${error.message}`);
+          this.handleDischarging();
+        });
     },
     handleCharging() {
-      this.sendMsg('開始充電！！');
-      this.chargingInterval = setInterval(() => {
-        this.triggerCharging();
-      }, this.timeSpeed);
+      this.triggerCharging()
+        .then(() => {
+          this.sendMsg('開始充電！！');
+          this.chargingInterval = setInterval(() => {
+            this.triggerCharging();
+          }, this.timeSpeed);
+        })
+        .catch((error) => {
+          this.sendMsg(`危險！${error.message}`);
+          this.handleDischarging();
+        });
     },
     handleDischarging() {
       clearInterval(this.chargingInterval);
+      this.sendMsg('停止充電');
       this.$store.dispatch('car/stopCharging').catch(() => {});
     },
-    handleUpgradeCharging() {
-      this.$store
-        .dispatch('car/upgradeChargingSpeed')
-        .then((newSpeed) => {
-          this.sendMsg(`電摩速度升級至${newSpeed}`);
-        })
-        .catch((error) => {
-          this.sendMsg(error.message);
-        });
-    },
-    handleUpgradeDuration() {
-      this.$store.dispatch('car/upgradeDuration')
-        .then((newDuration) => {
-          this.sendMsg(`電摩續航升級至${this.$options.filters.distanceFilter(newDuration)}`);
-        })
-        .catch((error) => {
-          this.sendMsg(error.message);
-        });
-    },
+  },
+  components: {
+    UpgradeCenter,
   },
 };
 </script>
-<style lang="less" scoped>
-#hud-container {
-  span {
-    padding: 0 1rem 0 0;
-  }
-}
-</style>

@@ -1,32 +1,43 @@
 <template>
   <div id="app">
-    <hud></hud>
+    <MessageBox></MessageBox>
+    <div class="header">
+      <img src="./assets/img/deliveryman.gif" alt="">
+    </div>
+    <div>
+      <span>輝哥派送</span>
+      <hr>
+    </div>
     <income></income>
-    <panel></panel>
+    <CarControl></CarControl>
+    <PlayerControl></PlayerControl>
     <MarketCenter></MarketCenter>
-    <message-box></message-box>
   </div>
 </template>
 
 <script>
-import './assets/common.less';
+import './assets/css/common.less';
+import './assets/css/app.less';
 
-import Hud from './components/CarControl.vue';
+import CarControl from './components/CarControl.vue';
 import Income from './components/Income.vue';
 import MarketCenter from './components/MarketCenter.vue';
-import Panel from './components/PlayerControl.vue';
+import PlayerControl from './components/PlayerControl.vue';
 import MessageBox from './components/MessageBox.vue';
 
 export default {
   name: 'App',
   components: {
-    Hud,
+    CarControl,
     MarketCenter,
-    Panel,
+    PlayerControl,
     Income,
     MessageBox,
   },
 };
 </script>
 <style lang="less" scoped>
+#app {
+  padding: 2rem 0 0 0;
+}
 </style>
