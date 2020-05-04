@@ -11,9 +11,12 @@
       <ul>
         <li v-for="pkg in queue" :key="pkg.id">
           <button @click="() => handleChoosePackage(pkg)">
+            <span>搶單</span>
+          </button>
+          <span>
             <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
             <span> -- {{ pkg.distance | distanceFilter }}</span>
-          </button>
+          </span>
         </li>
       </ul>
     </div>
@@ -40,7 +43,7 @@ export default {
       this.$store
         .dispatch('player/pickPackageFromMarket', pkg.id)
         .catch(() => {
-          console.log('Your Queue is Full');
+          this.sendMsg('你的待送配額已滿。去氪金擴充吧');
         });
     },
   },

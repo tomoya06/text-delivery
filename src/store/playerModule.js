@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { pickFromArray } from '../util/random';
 import { playerState } from '../data/player';
+import { allError } from '../data/error';
 
-const maxQueueLengths = [1, 3, 5, 10, 20];
+const maxQueueLengths = [3, 3, 5, 10, 20];
 // const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
 const shares = [0.1, 0.2, 0.3, 0.4, 0.5];
 const stepSizes = [0.1, 0.1, 0.1, 0.1, 0.1];
@@ -47,7 +48,7 @@ export default {
     startDeliver({ commit, rootState }, uuid) {
       return new Promise((resolve, reject) => {
         if (rootState.status !== playerState.free) {
-          return reject(new Error('not free'));
+          return reject(new Error(allError.player_notFree));
         }
         commit('activatePackage', uuid);
         commit('updateStatus', playerState.gettingPackage, { root: true });
@@ -57,7 +58,7 @@ export default {
     pickPackageFromMarket({ commit, rootState, getters }, uuid) {
       return new Promise((resolve, reject) => {
         if (getters.isQueueFull) {
-          return reject(new Error('full'));
+          return reject(new Error(allError.player_queueFull));
         }
         const thePackage = _.find(rootState.market.queue, { id: uuid });
         commit('market/pickPackage', uuid, { root: true });
@@ -69,7 +70,7 @@ export default {
     startSendingPackage({ commit, rootState }) {
       return new Promise((resolve, reject) => {
         if (rootState.status !== playerState.gettingPackage) {
-          return reject(new Error('no package yet'));
+          return reject(new Error(allError.player_noActive));
         }
         commit('updateStatus', playerState.startSendingPackage, { root: true });
         return resolve();

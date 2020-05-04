@@ -8,7 +8,10 @@
         <button @click="handleCharging" v-if="!isCharging">
           <span>充電</span>
         </button>
-        <button @click="handleDischarging" v-else>
+        <button @click="handleTriggerCharging" v-if="isCharging">
+          <span>充快點</span>
+        </button>
+        <button @click="handleDischarging" v-if="isCharging">
           <span>不充了</span>
         </button>
       </span>
@@ -57,16 +60,24 @@ export default {
     },
   },
   methods: {
+    triggerCharging() {
+      this.$store
+        .dispatch('car/chargeYourCar')
+        .then(() => {
+          console.log('charge');
+        })
+        .catch((err) => {
+          console.log('charge error', err);
+        });
+    },
+    handleTriggerCharging() {
+      this.triggerCharging();
+      this.sendMsg('手動充電！！');
+    },
     handleCharging() {
+      this.sendMsg('開始充電！！');
       this.chargingInterval = setInterval(() => {
-        this.$store
-          .dispatch('car/chargeYourCar')
-          .then(() => {
-            console.log('charge');
-          })
-          .catch((err) => {
-            console.log('charge error', err);
-          });
+        this.triggerCharging();
       }, this.timeSpeed);
     },
     handleDischarging() {

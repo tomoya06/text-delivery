@@ -4,6 +4,7 @@
     <income></income>
     <panel></panel>
     <MarketCenter></MarketCenter>
+    <message-box></message-box>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import Hud from './components/CarControl.vue';
 import Income from './components/Income.vue';
 import MarketCenter from './components/MarketCenter.vue';
 import Panel from './components/ExpressControl.vue';
+import MessageBox from './components/MessageBox.vue';
 
 export default {
   name: 'App',
@@ -20,6 +22,9 @@ export default {
     MarketCenter,
     Panel,
     Income,
+    MessageBox,
   },
 };
 </script>
+<style lang="less" scoped>
+</style>

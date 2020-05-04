@@ -1,7 +1,13 @@
 import Enum from 'enum';
 
-export default new Enum([
+export const allError = new Enum([
   'notEnoughMoney',
 
   'car_cantUpgrade',
+
+  'player_notFree',
+  'player_noActive',
+  'player_queueFull',
 ]);
+
+export const placeHolder = [];

@@ -2,11 +2,12 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import { playerState } from '../data/player';
-import errorData from '../data/error';
+import { allError } from '../data/error';
 
 import playerModule from './playerModule';
 import expressMarketModule from './expressMarketModule';
 import carModule from './carModule';
+import messageModule from './messageModule';
 
 Vue.use(Vuex);
 
@@ -37,7 +38,7 @@ export default new Vuex.Store({
     spendMoney({ state, commit }, val) {
       return new Promise((resolve, reject) => {
         if (val > state.earning) {
-          return reject(errorData.notEnoughMoney);
+          return reject(allError.notEnoughMoney);
         }
         commit('spend', val);
         return resolve();
@@ -56,5 +57,6 @@ export default new Vuex.Store({
     player: playerModule,
     market: expressMarketModule,
     car: carModule,
+    msg: messageModule,
   },
 });

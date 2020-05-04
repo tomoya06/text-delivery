@@ -1,6 +1,6 @@
 import { carState } from '../data/player';
 
-import errorData from '../data/error';
+import { allError } from '../data/error';
 
 const durations = [20000, 30000, 50000, 100000, 500000];
 const stepSizes = [1000, 15, 20, 35, 50];
@@ -81,7 +81,7 @@ export default {
         const upgradeCost = upgradeChargingSpeedPrices[curIdx + 1];
         const newSpeed = chargingSpeeds[curIdx + 1];
         if (!upgradeCost || !newSpeed) {
-          return reject(new Error(errorData.car_cantUpgrade));
+          return reject(new Error(allError.car_cantUpgrade));
         }
         return dispatch('spendMoney', upgradeCost, { root: true })
           .then(() => {

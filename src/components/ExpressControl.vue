@@ -9,11 +9,19 @@
       <ul>
         <li v-for="pkg in myQueue" :key="pkg.id">
           <button @click="() => handleActivatePackage(pkg)">
-            <span v-if="pkg.active">正在派送 --- </span>
-            <span v-if="pkg.finished">已送達 --- </span>
+            <span v-if="!pkg.active">開始派送</span>
+            <span v-else>加速！</span>
+          </button>
+          <span>
+            <span v-if="pkg.active">正在派送</span>
+            <span v-else-if="pkg.finished">已送達</span>
+            <span v-else>待派送</span>
+          </span>
+          <span> ---- </span>
+          <span>
             <span>{{ pkg.from }} -> {{ pkg.to }}: {{ pkg.good }} ({{ pkg.value }})</span>
             <span> -- {{ pkg.distance | rawDistanceFilter }}</span>
-          </button>
+          </span>
         </li>
       </ul>
     </div>
@@ -93,8 +101,8 @@ export default {
           .then(() => TimeUtil.delay(RandomUtil.generateRandomTime()))
           .then(() => this.$store.dispatch('player/startSendingPackage'))
           .then(() => this.startSending())
-          .catch((error) => {
-            console.log('oops', error);
+          .catch(() => {
+            this.sendMsg('不行。老闆説你不可以這樣派送');
           });
       }
     },
