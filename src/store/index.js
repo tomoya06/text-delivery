@@ -14,7 +14,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    earning: 1000, // 收入
+    earning: 10, // 收入
     grade: 0, // 等级
     warning: 0, // 罚单数量
     status: playerState.free,

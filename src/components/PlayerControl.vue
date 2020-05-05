@@ -6,14 +6,13 @@
     </div>
     <div class="info-container">
       <span>當前狀態：{{ status }}</span>
-      <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
+      <span>我的待送包裹：{{ queue.length }}/{{ curQL }}</span>
       <!-- <span>penalty rate: {{ penaltyRate }}</span> -->
     </div>
     <div class="fieldset-container" v-if="showSummary">
       <fieldset>
         <legend>派送完成</legend>
-        <div v-html="summary">
-        </div>
+        <div v-html="summary"></div>
       </fieldset>
     </div>
     <ul class="densed">
@@ -67,7 +66,7 @@ export default {
   computed: {
     ...mapState(['timeSpeed', 'status']),
     ...mapState('player', ['queue', 'penaltyRate']),
-    ...mapGetters('player', ['curQl']),
+    ...mapGetters('player', ['curQL']),
   },
   watch: {
     status(val, oldVal) {
@@ -78,15 +77,23 @@ export default {
         this.$store
           .dispatch('car/stopTheCar')
           .then(() => this.$store.dispatch('player/finalizePackage', finishedPackage.id))
-          .then(({ stock, bonus, penalty }) => {
+          .then(({ cp }) => {
+            const { stock, bonus, penalty } = cp;
             clearTimeout(this.showSummaryTimeout);
 
-            this.summary = `<span>本單進賬${this.$options.filters.moneyFilter(stock)}。</span><br>`;
+            this.summary = `<span>本單進賬+${this.$options.filters.moneyFilter(
+              stock.value,
+            )}。</span><br>`;
             this.summary
-              += bonus > 0 ? `<span>獲得小費${this.$options.filters.moneyFilter(bonus)}。</span><br>` : '';
-            this.summary += penalty && penalty.value
-              ? `<b>由於${penalty.name}，您被罰款${this.$options.filters.moneyFilter(penalty.value)}。</b>`
-              : '';
+              += bonus.value > 0
+                ? `<span>小費+${this.$options.filters.moneyFilter(bonus.value)}。</span><br>`
+                : '';
+            this.summary
+              += penalty && penalty.value
+                ? `<b>罰款${this.$options.filters.moneyFilter(penalty.value)}(${
+                  penalty.name
+                })。</b>`
+                : '';
             this.showSummary = true;
             this.$store.dispatch('player/getFree', finishedPackage.id);
 

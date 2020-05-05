@@ -1,0 +1,62 @@
+[
+  {
+    "name": "免交通罰款",
+    "times": 10,
+    "type": "penalty",
+    "exec": "* 0"
+  },
+  {
+    "name": "交通罰款五折",
+    "times": 10,
+    "type": "penalty",
+    "exec": "* 0.5"
+  },
+  {
+    "name": "交通罰款八折",
+    "times": 10,
+    "type": "penalty",
+    "exec": "* 0.8"
+  },
+  {
+    "name": "免交通罰款一折",
+    "times": 10,
+    "type": "penalty",
+    "exec": "* 0.1"
+  },
+  {
+    "name": "每單小費+10",
+    "times": 10,
+    "type": "bonus",
+    "exec": "+ 10"
+  },
+  {
+    "name": "每單小費+20",
+    "times": 10,
+    "type": "bonus",
+    "exec": "+ 20"
+  },
+  {
+    "name": "每單小費+30",
+    "times": 10,
+    "type": "bonus",
+    "exec": "+ 30"
+  },
+  {
+    "name": "每單分成加倍",
+    "times": 10,
+    "type": "stock",
+    "exec": "* 2"
+  },
+  {
+    "name": "每單分成x4",
+    "times": 10,
+    "type": "stock",
+    "exec": "* 4"
+  },
+  {
+    "name": "每單分成減半",
+    "times": 10,
+    "type": "stock",
+    "exec": "* 0.5"
+  }
+]

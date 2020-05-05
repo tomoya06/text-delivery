@@ -42,6 +42,6 @@ export default {
 </script>
 <style lang="less" scoped>
 #app {
-  padding: 2rem 0 0 0;
+  padding: 0 0 4rem 0 ;
 }
 </style>

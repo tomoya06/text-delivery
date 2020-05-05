@@ -4,13 +4,13 @@
       <fieldset>
         <legend>愛車升級區</legend>
         <div>
-          <button @click="handleUpgradeCharging" v-if="canUpgradeCS" class="upgrade-button">
+          <button @click="handleUpgradeCharging" v-if="canUpgradeCS" class="larger-button">
             <span>只需{{ upgradeCScost | moneyFilter }}，</span>
             <br />
             <span>升級愛車充電速度</span>
             <span>至{{ nextCS }}</span>
           </button>
-          <button @click="handleUpgradeDuration" v-if="canUpgradeDT" class="upgrade-button">
+          <button @click="handleUpgradeDuration" v-if="canUpgradeDT" class="larger-button">
             <span>不要{{ (upgradeDTcost * 1.5) | roundMoneyFilter }}，</span>
             <span>也不要{{ (upgradeDTcost * 1.2) | roundMoneyFilter }}，</span>
             <span>只要{{ upgradeDTcost | roundMoneyFilter }}，</span>
@@ -18,7 +18,7 @@
             <span>升級電池續航</span>
             <span>至{{ nextDT | distanceFilter }}</span>
           </button>
-          <button @click="handleUpgradeStepSize" v-if="canUpgradeSS" class="upgrade-button">
+          <button @click="handleUpgradeStepSize" v-if="canUpgradeSS" class="larger-button">
             <span>{{ upgradeSScost | roundMoneyFilter }}，快來爆改愛車</span>
             <br />
             <span>車速飆升至{{ nextSS }}</span>
@@ -82,8 +82,8 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped>
-.upgrade-button {
+<style lang="less">
+.larger-button {
   line-height: 1rem;
   padding: 0.6rem 0.4rem;
   margin: 0.4rem 0.4rem 0.4rem 0;

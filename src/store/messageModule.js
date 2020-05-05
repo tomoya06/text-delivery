@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v1 as uuidvn } from 'uuid';
 
 const MAX_MSG_LENGTH = 2;
 
 const emptyMsg = () => ({
-  id: uuidv4(),
+  id: uuidvn(),
   msg: '你還沒有消息',
 });
 
@@ -17,7 +17,7 @@ export default {
   }),
   mutations: {
     sendMsg(state, msg) {
-      const id = uuidv4();
+      const id = uuidvn();
       state.msgs.unshift({
         id,
         msg,

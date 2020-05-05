@@ -88,11 +88,10 @@ export default {
         return resolve();
       });
     },
-    upgradeChargingSpeed({ commit, dispatch, state }) {
+    upgradeChargingSpeed({ commit, dispatch, getters }) {
       return new Promise((resolve, reject) => {
-        const curIdx = state.csGrade;
-        const upgradeCost = upgradeChargingSpeedPrices[curIdx + 1];
-        const newSpeed = chargingSpeeds[curIdx + 1];
+        const upgradeCost = getters.upgradeCScost;
+        const newSpeed = getters.nextCS;
         if (!upgradeCost || !newSpeed) {
           return reject(new Error(allError.car_cantUpgrade));
         }

@@ -53,13 +53,14 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+@msgHeight: 2rem;
 .msgbox-container {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 2rem;
-  border: 1px solid black;
+  height: @msgHeight;
+  // border: 1px solid white;
   overflow: hidden;
   background: black;
   color: white;
@@ -68,7 +69,7 @@ export default {
     margin: 0;
 
     li {
-      line-height: 2rem;
+      line-height: @msgHeight;
     }
   }
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
+import { v1 as uuidvn } from 'uuid';
 
 import { pickFromArray, generateDistance } from '../util/random';
 
@@ -19,7 +19,7 @@ export default {
       state.queue.splice(0);
     },
     generatePackage(state) {
-      const uid = uuidv4();
+      const uid = uuidvn();
       const curRcvName = pickFromArray(packageData.rcvNames);
       const curProvider = pickFromArray(packageData.serviceProviders);
       const curService = pickFromArray(curProvider.services);
