@@ -23,3 +23,7 @@ export function generateDistance() {
 export function generateRandomTime() {
   return Math.random() * 500 + 600;
 }
+
+export function randomTrue(rate) {
+  return Math.random() <= rate;
+}

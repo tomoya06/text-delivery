@@ -9,21 +9,24 @@
       <hr>
     </div>
     <income></income>
-    <CarControl></CarControl>
     <PlayerControl></PlayerControl>
     <MarketCenter></MarketCenter>
+    <CarControl></CarControl>
+    <add-on></add-on>
   </div>
 </template>
 
 <script>
 import './assets/css/common.less';
 import './assets/css/app.less';
+import './assets/css/animation.less';
 
 import CarControl from './components/CarControl.vue';
 import Income from './components/Income.vue';
 import MarketCenter from './components/MarketCenter.vue';
 import PlayerControl from './components/PlayerControl.vue';
 import MessageBox from './components/MessageBox.vue';
+import AddOn from './components/AddOn.vue';
 
 export default {
   name: 'App',
@@ -33,6 +36,7 @@ export default {
     PlayerControl,
     Income,
     MessageBox,
+    AddOn,
   },
 };
 </script>

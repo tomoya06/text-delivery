@@ -15,18 +15,20 @@
       </div>
       <ul class="densed">
         <li v-for="pkg in queue" :key="pkg.id" class="queue-item expanded">
-          <span>
-            <button @click="() => handleChoosePackage(pkg)">
-              <span>搶單</span>
-            </button>
-          </span>
           <span class="queue-item-content">
             <span class="value">{{ pkg.value | moneyFilter }}</span>
             <span class="distance">{{ pkg.distance | distanceFilter }}</span>
+            <br>
             <span class="from">{{ pkg.from }}</span>
             <span>派送給</span>
             <span class="to">{{ pkg.to }}：</span>
+            <br>
             <span class="good">{{ pkg.good }}</span>
+          </span>
+          <span class="action-button">
+            <button @click="() => handleChoosePackage(pkg)">
+              <span>搶單</span>
+            </button>
           </span>
         </li>
       </ul>
@@ -62,18 +64,26 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped>
+<style lang="less">
 .queue-item {
+  position: relative;
+  &:hover {
+    background: #eee;
+  }
+
   .queue-item-content {
     span {
       display: inline-block;
-      margin: 0 0 0 .4rem;
+      margin: 0 .4rem 0 0;
+    }
+    .status {
+      font-weight: 800;
     }
     .from {
-      font-weight: 600;
+      font-weight: 200;
     }
     .to {
-      font-weight: 600;
+      font-weight: 200;
       font-style: italic;
     }
     .good {
@@ -84,6 +94,16 @@ export default {
     }
     .distance {
       width: 4rem;
+    }
+  }
+  .action-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    button {
+      line-height: 3rem;
+      padding: 0 .6rem;
     }
   }
 }

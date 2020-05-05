@@ -1,0 +1,21 @@
+.colorchange {
+  animation: colorchange 0.4s infinite alternate;
+}
+
+@keyframes colorchange {
+  0% {
+    color: red;
+  }
+  100% {
+    color: yellow;
+  }
+}
+
+@-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */ {
+  0% {
+    color: red;
+  }
+  100% {
+    color: yellow;
+  }
+}

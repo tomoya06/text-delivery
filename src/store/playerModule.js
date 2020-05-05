@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { pickFromArray } from '../util/random';
 import { playerState } from '../data/player';
 import { allError } from '../data/error';
+import { doYouNeedAPenalty } from '../util/penalty';
 
 const shares = [0.1, 0.2, 0.3, 0.4, 0.5];
 
@@ -12,21 +13,24 @@ const upgradeMaxQueueLengthPrices = [0, 10, 100, 200, 500];
 
 const randomIncomeRates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1, 0.3, 0.5];
 
+const penaltyRates = [0.01];
+const penaltyStepSizes = [0.001];
+
 
 export default {
   namespaced: true,
   state: () => ({
     share: shares[0],
     stepSize: stepSizes[0],
-
     totalFinished: 0,
 
+    penaltyRate: penaltyRates[0],
     queue: [],
     qlGrade: 0,
     activeIdx: -1,
   }),
   mutations: {
-    removeExpress(state, uuid) {
+    removePackage(state, uuid) {
       const idx = _.findIndex(state.queue, { id: uuid });
       state.queue.splice(idx, 1);
     },
@@ -50,6 +54,16 @@ export default {
     },
     addFinished(state) {
       state.totalFinished += 1;
+    },
+    resetActivePackage(state) {
+      state.activeIdx = -1;
+    },
+    increasePenaltyRate(state, val) {
+      state.penaltyRate += val;
+    },
+    resetPenaltyRate(state) {
+      // eslint-disable-next-line prefer-destructuring
+      state.penaltyRate = penaltyRates[0];
     },
   },
   actions: {
@@ -106,6 +120,7 @@ export default {
         .finally(() => {
           if (state.queue[state.activeIdx].distance <= 0) {
             commit('updateStatus', playerState.finishedPackage, { root: true });
+            commit('resetActivePackage');
           }
         });
     },
@@ -121,13 +136,20 @@ export default {
         if (thePackage.finished) {
           const thisIncome = thePackage.value * state.share;
           const randomIncome = pickFromArray(randomIncomeRates) * thePackage.value;
+          let penaltyIncome = 0;
+          const penalty = doYouNeedAPenalty(state.penaltyRate);
+          if (penalty) {
+            penaltyIncome = 0 - penalty.value;
+          }
 
-          commit('earn', thisIncome + randomIncome, { root: true });
+          commit('earn', thisIncome + randomIncome + penaltyIncome, { root: true });
           commit('addFinished');
+          commit('resetPenaltyRate');
 
           return resolve({
             stock: thisIncome,
             bonus: randomIncome,
+            penalty,
           });
         }
         return resolve({
@@ -138,7 +160,13 @@ export default {
     },
     getFree({ commit }, uuid) {
       commit('updateStatus', playerState.free, { root: true });
-      commit('removeExpress', uuid);
+      commit('removePackage', uuid);
+    },
+    increasePenaltyRate({ commit, rootState }) {
+      if (rootState.status === playerState.sendingPackageOnCar) {
+        const addRate = penaltyStepSizes[0] * (rootState.car.ssGrade + 1);
+        commit('increasePenaltyRate', addRate);
+      }
     },
   },
   getters: {

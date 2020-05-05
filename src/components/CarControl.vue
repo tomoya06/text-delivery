@@ -42,12 +42,10 @@
         </td>
       </tr>
     </table>
-    <upgrade-center />
   </div>
 </template>
 <script>
 import { mapState, mapGetters } from 'vuex';
-import UpgradeCenter from './UpgradeCenter.vue';
 
 export default {
   data() {
@@ -92,9 +90,6 @@ export default {
       this.sendMsg('停止充電');
       this.$store.dispatch('car/stopCharging').catch(() => {});
     },
-  },
-  components: {
-    UpgradeCenter,
   },
 };
 </script>

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { pickFromArray, generateDistance } from '../util/random';
 
-const maxQueueLengths = [10, 15, 20, 30, 50];
+const maxQueueLengths = [5];
 
 const packageData = require('../data/package');
 

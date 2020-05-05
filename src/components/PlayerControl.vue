@@ -5,32 +5,41 @@
       <hr />
     </div>
     <div class="info-container">
-      <span>總共配送：{{ totalFinished }}</span>
-    </div>
-    <div class="info-container">
-      <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
-      <span v-if="showSummary">{{ summary }}</span>
-    </div>
-    <div class="info-container">
       <span>當前狀態：{{ status }}</span>
+      <span>我的待送包裹：{{ queue.length }}/{{ curQl }}</span>
+      <!-- <span>penalty rate: {{ penaltyRate }}</span> -->
+    </div>
+    <div class="fieldset-container" v-if="showSummary">
+      <fieldset>
+        <legend>派送完成</legend>
+        <div v-html="summary">
+        </div>
+      </fieldset>
     </div>
     <ul class="densed">
       <li v-for="pkg in queue" :key="pkg.id" class="expanded queue-item">
-        <span>
-          <button @click="() => handleActivatePackage(pkg)" v-if="!pkg.finished">
-            <span v-if="!pkg.active">開始派送</span>
-            <span v-else>加速！</span>
-          </button>
-        </span>
         <span class="queue-item-content">
           <span class="status">
             <span v-if="pkg.active">正在派送</span>
             <span v-else-if="pkg.finished">已送達</span>
             <span v-else>待派送</span>
           </span>
-          <span>距離{{ pkg.distance | rawDistanceFilter }}</span>
-          <span>{{ pkg.from }} ➡ {{ pkg.to }}: {{ pkg.good }}</span>
-          <span>{{ pkg.value | moneyFilter }}</span>
+          <span class="value">{{ pkg.value | moneyFilter }}</span>
+          <span class="distance">{{ pkg.distance | distanceFilter }}</span>
+          <br />
+          <span class="from">{{ pkg.from }}</span>
+          <span>派送給</span>
+          <span class="to">{{ pkg.to }}：</span>
+          <br />
+          <span class="good">{{ pkg.good }}</span>
+        </span>
+        <span class="action-button" v-if="!pkg.finished">
+          <button @click="() => handleActivatePackage(pkg)" v-if="!pkg.active">
+            <span>開始派送</span>
+          </button>
+          <button @click="handleSpeedUpPackage" v-else>
+            <span>加速！</span>
+          </button>
         </span>
       </li>
     </ul>
@@ -44,19 +53,20 @@ const TimeUtil = require('../util/time');
 const RandomUtil = require('../util/random');
 const { playerState } = require('../data/player');
 
-const FINALIZE_DELAY = 2000;
+const FINALIZE_DELAY = 3000;
 
 export default {
   data() {
     return {
       onTheRoadInterval: null,
       showSummary: false,
+      showSummaryTimeout: null,
       summary: '',
     };
   },
   computed: {
     ...mapState(['timeSpeed', 'status']),
-    ...mapState('player', ['queue', 'totalFinished']),
+    ...mapState('player', ['queue', 'penaltyRate']),
     ...mapGetters('player', ['curQl']),
   },
   watch: {
@@ -68,16 +78,22 @@ export default {
         this.$store
           .dispatch('car/stopTheCar')
           .then(() => this.$store.dispatch('player/finalizePackage', finishedPackage.id))
-          .then(({ stock, bonus }) => {
-            this.summary = `本單進賬${stock.toFixed(1)}元`;
-            this.summary += bonus > 0 ? `，獲得小費${bonus.toFixed(1)}元` : '';
+          .then(({ stock, bonus, penalty }) => {
+            clearTimeout(this.showSummaryTimeout);
+
+            this.summary = `<span>本單進賬${this.$options.filters.moneyFilter(stock)}。</span><br>`;
+            this.summary
+              += bonus > 0 ? `<span>獲得小費${this.$options.filters.moneyFilter(bonus)}。</span><br>` : '';
+            this.summary += penalty && penalty.value
+              ? `<b>由於${penalty.name}，您被罰款${this.$options.filters.moneyFilter(penalty.value)}。</b>`
+              : '';
             this.showSummary = true;
-            return TimeUtil.delay(FINALIZE_DELAY);
-          })
-          .then(() => {
             this.$store.dispatch('player/getFree', finishedPackage.id);
-            this.showSummary = false;
-            this.summary = '';
+
+            this.showSummaryTimeout = setTimeout(() => {
+              this.showSummary = false;
+              this.summary = '';
+            }, FINALIZE_DELAY);
           });
       }
     },
@@ -108,16 +124,10 @@ export default {
     triggerOneStep() {
       this.$store.dispatch('player/deliverPackage');
     },
+    handleSpeedUpPackage() {
+      this.triggerOneStep();
+      this.$store.dispatch('player/increasePenaltyRate');
+    },
   },
 };
 </script>
-<style lang="less" scoped>
-.queue-item {
-  .queue-item-content {
-    span {
-      display: inline-block;
-      margin: 0 0 0 0.4rem;
-    }
-  }
-}
-</style>
