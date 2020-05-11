@@ -1,10 +1,10 @@
 import { v1 as uuidvn } from 'uuid';
 
-const MAX_MSG_LENGTH = 2;
+const MAX_MSG_LENGTH = 1;
 
 const emptyMsg = () => ({
   id: uuidvn(),
-  msg: '你還沒有消息',
+  msg: '我是輝哥，我送外賣',
 });
 
 const defaultMsgs = '0'.repeat(MAX_MSG_LENGTH).split('').map(() => emptyMsg());
