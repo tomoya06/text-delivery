@@ -11,7 +11,7 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "enum": "^3.0.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "uuid": "^8.0.0",
     "vue": "^2.6.11",
     "vue-toasted": "^1.1.28",
